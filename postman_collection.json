@@ -1,0 +1,242 @@
+{
+	"info": {
+		"_postman_id": "06c8cc48-fcbe-4ba6-9f78-c1b4fb374f06",
+		"name": "Dígito Único",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "deve cadastrar usuário com sucesso",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "aa3f4bb3-c3bd-4d53-a45c-e87d3ed51a0e",
+						"exec": [
+							"const email = pm.globals.get('email');",
+							"const nome = pm.globals.get('nome');",
+							"",
+							"pm.test(\"deve receber status code 201\", () => {",
+							"    pm.response.to.have.status(201);",
+							"});",
+							"",
+							"pm.test(\"deve validar resposta\", () => {",
+							"    var jsonData = pm.response.json();",
+							"",
+							"    pm.globals.set('id', jsonData.id);",
+							"",
+							"    pm.expect(jsonData.id).to.be.an('number');",
+							"    pm.expect(jsonData.nome).to.eql(nome);",
+							"    pm.expect(jsonData.email).to.eql(email);",
+							"});",
+							"",
+							"pm.test(\"deve validar se o header Location está presente\", function () {",
+							"    pm.response.to.have.header(\"Location\");",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "e4ad8567-48c7-4e2d-957a-db6b06b6544c",
+						"exec": [
+							"const email = pm.variables.replaceIn('{{$randomEmail}}');",
+							"const nome = pm.variables.replaceIn('{{$randomFullName}}');",
+							"",
+							"pm.globals.set('email', email);",
+							"pm.globals.set('nome', nome);",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"nome\": \"{{nome}}\",\n    \"email\": \"{{email}}\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:8080/usuario",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"usuario"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "deve adicionar localizar usuário cadastrado",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "8450a096-9724-4f61-b466-890b50f54781",
+						"exec": [
+							"const email = pm.globals.get('email');",
+							"const nome = pm.globals.get('nome');",
+							"",
+							"pm.test(\"deve receber status code 200\", () => {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"deve validar resposta\", () => {",
+							"    var jsonData = pm.response.json();",
+							"",
+							"    pm.expect(jsonData.id).to.be.an('number');",
+							"    pm.expect(jsonData.nome).to.eql(nome);",
+							"    pm.expect(jsonData.email).to.eql(email);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "5be4306e-1923-4a42-87b1-320ef4b0e196",
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/usuario/{{id}}",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"usuario",
+						"{{id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "deve alterar usuário cadastrado",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "b3de1605-da20-4ca8-a043-e1b175dbd353",
+						"exec": [
+							"const email = pm.variables.replaceIn('{{$randomEmail}}');",
+							"const nome = pm.variables.replaceIn('{{$randomFullName}}');",
+							"",
+							"pm.globals.set('email', email);",
+							"pm.globals.set('nome', nome);"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"id": "fbab61c5-1564-4b72-8a75-7ca61538a59c",
+						"exec": [
+							"const email = pm.globals.get('email');",
+							"const nome = pm.globals.get('nome');",
+							"",
+							"pm.test(\"deve receber status code 200\", () => {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"deve validar resposta\", () => {",
+							"    var jsonData = pm.response.json();",
+							"",
+							"    pm.expect(jsonData.id).to.be.an('number');",
+							"    pm.expect(jsonData.nome).to.eql(nome);",
+							"    pm.expect(jsonData.email).to.eql(email);",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"nome\": \"{{nome}}\",\n    \"email\": \"{{email}}\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/usuario/{{id}}",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"usuario",
+						"{{id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "deve remover usuário cadastrado",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "147cbb53-95f5-4ab3-9739-eef00541876c",
+						"exec": [
+							"pm.test(\"deve receber status code 204\", () => {",
+							"    pm.response.to.have.status(204);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/usuario/{{id}}",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"usuario",
+						"{{id}}"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"protocolProfileBehavior": {}
+}
