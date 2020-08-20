@@ -1,10 +1,13 @@
 package br.com.bancointer.desafio.application;
 
+import java.util.Optional;
+
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 
+import br.com.bancointer.desafio.application.errors.UsuarioDuplicadoException;
 import br.com.bancointer.desafio.domain.usuario.Usuario;
 import br.com.bancointer.desafio.domain.usuario.UsuarioRepository;
 
@@ -27,6 +30,10 @@ public class UsuarioService {
 	}
 
 	public Usuario salvar(Usuario usuario) {
+		Optional<Usuario> usuarioSalvo = usuarioRepository.findByEmail(usuario.getEmail());
+		if (usuarioSalvo.isPresent()) {
+			throw new UsuarioDuplicadoException();
+		}
 		return usuarioRepository.save(usuario);
 	}
 

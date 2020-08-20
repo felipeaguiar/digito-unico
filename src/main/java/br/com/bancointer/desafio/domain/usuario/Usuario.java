@@ -38,7 +38,7 @@ public class Usuario {
 	@Getter @Setter
 	private String nome;
 	
-	@Column(length = 50, nullable = false)
+	@Column(length = 50, nullable = false, unique = true)
 	@NonNull
 	@Getter @Setter
 	private String email;
