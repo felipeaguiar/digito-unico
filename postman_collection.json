@@ -6,6 +6,70 @@
 	},
 	"item": [
 		{
+			"name": "deve falhar e retornar mensagem de dados inválido",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "29a5daf5-c99f-452e-975e-552cac00e8b5",
+						"exec": [
+							"pm.test(\"deve receber status code 400\", () => {",
+							"    pm.response.to.have.status(400);",
+							"});",
+							"",
+							"pm.test(\"deve validar resposta\", () => {",
+							"    const jsonData = pm.response.json();",
+							"",
+							"    pm.expect(jsonData.status).to.be.eql(400);",
+							"    pm.expect(jsonData.messages.length).to.be.eql(2);",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "b6a3e6f9-1140-4859-83db-ea9259c80c5a",
+						"exec": [
+							"const email = pm.variables.replaceIn('{{$randomEmail}}');",
+							"const nome = pm.variables.replaceIn('{{$randomFullName}}');",
+							"",
+							"pm.globals.set('email', email);",
+							"pm.globals.set('nome', nome);",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"nome\": \"Fe\",\n    \"email\": \"felipe.mail\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:8080/usuario",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"usuario"
+					]
+				}
+			},
+			"response": []
+		},
+		{
 			"name": "deve cadastrar usuário com sucesso",
 			"event": [
 				{
@@ -21,13 +85,13 @@
 							"});",
 							"",
 							"pm.test(\"deve validar resposta\", () => {",
-							"    var jsonData = pm.response.json();",
+							"    const jsonData = pm.response.json();",
 							"",
 							"    pm.globals.set('id', jsonData.id);",
 							"",
 							"    pm.expect(jsonData.id).to.be.an('number');",
-							"    pm.expect(jsonData.nome).to.eql(nome);",
-							"    pm.expect(jsonData.email).to.eql(email);",
+							"    pm.expect(jsonData.nome).to.be.eql(nome);",
+							"    pm.expect(jsonData.email).to.be.eql(email);",
 							"});",
 							"",
 							"pm.test(\"deve validar se o header Location está presente\", function () {",
@@ -80,6 +144,66 @@
 			"response": []
 		},
 		{
+			"name": "deve falhar ao tentar recadastrar o mesmo usuário",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "bfe3b32c-6832-4539-a762-e951cea2f707",
+						"exec": [
+							"pm.test(\"deve receber status code 400\", () => {",
+							"    pm.response.to.have.status(400);",
+							"});",
+							"",
+							"pm.test(\"deve validar resposta\", () => {",
+							"    const jsonData = pm.response.json();",
+							"",
+							"    pm.expect(jsonData.status).to.be.eql(400);",
+							"    pm.expect(jsonData.messages.length).to.be.eql(1);",
+							"    pm.expect(jsonData.messages[0].message).to.be.eql('Usuário já cadastrado');",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "aeb5cb95-6a15-4d19-b9fd-b28ad1423bee",
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"nome\": \"{{nome}}\",\n    \"email\": \"{{email}}\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:8080/usuario",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"usuario"
+					]
+				}
+			},
+			"response": []
+		},
+		{
 			"name": "deve adicionar localizar usuário cadastrado",
 			"event": [
 				{
@@ -95,7 +219,7 @@
 							"});",
 							"",
 							"pm.test(\"deve validar resposta\", () => {",
-							"    var jsonData = pm.response.json();",
+							"    const jsonData = pm.response.json();",
 							"",
 							"    pm.expect(jsonData.id).to.be.an('number');",
 							"    pm.expect(jsonData.nome).to.eql(nome);",
@@ -164,7 +288,7 @@
 							"});",
 							"",
 							"pm.test(\"deve validar resposta\", () => {",
-							"    var jsonData = pm.response.json();",
+							"    const jsonData = pm.response.json();",
 							"",
 							"    pm.expect(jsonData.id).to.be.an('number');",
 							"    pm.expect(jsonData.nome).to.eql(nome);",
@@ -204,6 +328,353 @@
 			"response": []
 		},
 		{
+			"name": "deve falhar ao tentar alterar o usuário com dados inválidos",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "ee4ecfe5-ecc5-4825-a709-440fe26f5e92",
+						"exec": [
+							"const email = pm.variables.replaceIn('{{$randomEmail}}');",
+							"const nome = pm.variables.replaceIn('{{$randomFullName}}');",
+							"",
+							"pm.globals.set('email', email);",
+							"pm.globals.set('nome', nome);"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"id": "4b133ff1-e5dc-4f8e-900f-20f447a5eaf8",
+						"exec": [
+							"const email = pm.globals.get('email');",
+							"const nome = pm.globals.get('nome');",
+							"",
+							"pm.test(\"deve receber status code 200\", () => {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"deve validar resposta\", () => {",
+							"    const jsonData = pm.response.json();",
+							"",
+							"    pm.expect(jsonData.id).to.be.an('number');",
+							"    pm.expect(jsonData.nome).to.eql(nome);",
+							"    pm.expect(jsonData.email).to.eql(email);",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"nome\": \"{{nome}}\",\n    \"email\": \"{{email}}\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/usuario/{{id}}",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"usuario",
+						"{{id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "deve calcular dígito único e vincular a um usuário",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "1cecb221-6f4a-479c-9cb7-20b8a3932231",
+						"exec": [
+							"pm.test(\"deve receber status code 200\", () => {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"deve validar resposta\", () => {",
+							"    const jsonData = pm.response.json();",
+							"",
+							"    pm.expect(jsonData.resultado).to.be.eql(2);",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "c8c272b1-550c-4f2c-8a42-c35ac259381c",
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"numero\": \"9875\",\n    \"repeticoes\": 1,\n    \"usuario\": {{id}}\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:8080/calculo",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"calculo"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "deve calcular dígito único e sem vincular a um usuário",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "79f491dd-2910-4ef6-9c92-8c48e134d89b",
+						"exec": [
+							"pm.test(\"deve receber status code 200\", () => {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"deve validar resposta\", () => {",
+							"    const jsonData = pm.response.json();",
+							"",
+							"    pm.expect(jsonData.resultado).to.be.eql(2);",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "94c2d4ea-2820-4db9-8add-19e381b447d4",
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"numero\": \"9875\",\n    \"repeticoes\": 1\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:8080/calculo",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"calculo"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "deve falhar ao calcular dígito único com número inválido",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "56db77e0-7757-44f3-9d32-15f5022b260e",
+						"exec": [
+							"pm.test(\"deve receber status code 400\", () => {",
+							"    pm.response.to.have.status(400);",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "d9bc7ca2-3d85-4f62-bf6d-9e68470fad0d",
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"numero\": \"A329J\",\n    \"repeticoes\": 1\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:8080/calculo",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"calculo"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "deve calcular dígito único com quatro repetições",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "c027f8b1-6f60-4e9e-bf83-af522ec5563f",
+						"exec": [
+							"pm.test(\"deve receber status code 200\", () => {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"deve validar resposta\", () => {",
+							"    const jsonData = pm.response.json();",
+							"",
+							"    pm.expect(jsonData.resultado).to.be.eql(8);",
+							"});",
+							"",
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "aa36c604-312c-4aa5-afa5-f11a47a446e0",
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"numero\": \"9875\",\n    \"repeticoes\": 4,\n    \"usuario\": {{id}}\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:8080/calculo",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"calculo"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "deve obter histórico de cálculos do usuário",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "7b67eea7-dd26-493a-a98b-d5bd5cf0ef6a",
+						"exec": [
+							"pm.test(\"deve receber status code 200\", () => {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"deve validar resposta\", () => {",
+							"    const jsonData = pm.response.json();",
+							"",
+							"    pm.expect(jsonData.length).to.be.eql(2);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "f9aa4dd3-e4f6-4269-ad59-1f8e2c0f18d8",
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/usuario/{{id}}/calculos",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"usuario",
+						"{{id}}",
+						"calculos"
+					]
+				}
+			},
+			"response": []
+		},
+		{
 			"name": "deve remover usuário cadastrado",
 			"event": [
 				{
@@ -214,6 +685,49 @@
 							"pm.test(\"deve receber status code 204\", () => {",
 							"    pm.response.to.have.status(204);",
 							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/usuario/{{id}}",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"usuario",
+						"{{id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "deve falhar ao tentar remover um usuário não existente",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "ac221038-c059-4a52-8bf2-362cd92fd630",
+						"exec": [
+							"pm.test(\"deve receber status code 404\", () => {",
+							"    pm.response.to.have.status(404);",
+							"});",
+							"",
+							"pm.test(\"deve validar resposta\", () => {",
+							"    const jsonData = pm.response.json();",
+							"",
+							"    pm.expect(jsonData.status).to.be.eql(404);",
+							"    pm.expect(jsonData.messages.length).to.be.eql(1);",
+							"    pm.expect(jsonData.messages[0].message).to.be.eql('Recurso não encontrado');",
+							"});",
+							""
 						],
 						"type": "text/javascript"
 					}

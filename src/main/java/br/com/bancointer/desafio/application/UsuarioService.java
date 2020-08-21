@@ -8,6 +8,7 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 
 import br.com.bancointer.desafio.application.errors.UsuarioDuplicadoException;
+import br.com.bancointer.desafio.domain.usuario.Calculo;
 import br.com.bancointer.desafio.domain.usuario.Usuario;
 import br.com.bancointer.desafio.domain.usuario.UsuarioRepository;
 
@@ -17,7 +18,7 @@ public class UsuarioService {
 	private UsuarioRepository usuarioRepository;
 	
 	@Autowired
-	UsuarioService(UsuarioRepository usuarioRepository) {
+	public UsuarioService(UsuarioRepository usuarioRepository) {
 		this.usuarioRepository = usuarioRepository;
 	}
 
@@ -41,6 +42,20 @@ public class UsuarioService {
 		Usuario usuarioSalvo = buscarPorId(id);
 		BeanUtils.copyProperties(usuario, usuarioSalvo, "id");
 		return usuarioRepository.save(usuarioSalvo);
+	}
+
+	public void adicionarCalculo(Long id, String n, int k, int digito) {
+		Optional<Usuario> optional = usuarioRepository.findById(id);
+		
+		if (!optional.isPresent()) {			
+			return;
+		}
+		
+		Usuario usuario = optional.get();
+		Calculo calculo = new Calculo(n, k, digito);
+		usuario.adicionarCalculo(calculo);
+		
+		usuarioRepository.save(usuario);
 	}
 
 

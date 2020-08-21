@@ -10,6 +10,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageConversionException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -23,6 +24,17 @@ public class AppExceptionHandler {
 	
 	@Autowired
 	private MessageSource messageSource;
+	
+	@ExceptionHandler(HttpMessageConversionException.class)
+	public ResponseEntity<ApiResponse> handleHttpMessageConversionException(HttpMessageConversionException e,
+			Locale locale) {
+
+		HttpStatus status = HttpStatus.BAD_REQUEST;
+		String message = messageSource.getMessage("mensagem.invalida", null, locale);
+
+		ApiResponse error = ApiResponse.of(status.value(), new ApiMessage("json_parse", message));
+		return ResponseEntity.badRequest().body(error);
+	}
 	
 	@ExceptionHandler(EmptyResultDataAccessException.class)
 	public ResponseEntity<ApiResponse> handlerEmptyResultDataAccessException(EmptyResultDataAccessException e, Locale locale) {

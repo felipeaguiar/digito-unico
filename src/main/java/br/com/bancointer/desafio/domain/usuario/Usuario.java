@@ -1,6 +1,7 @@
 package br.com.bancointer.desafio.domain.usuario;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import javax.persistence.CascadeType;
@@ -50,6 +51,18 @@ public class Usuario {
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
     @JoinColumn(name = "id_usuario")
     private List<Calculo> calculos = new ArrayList<>();
+    
+	public void adicionarCalculo(Calculo calculo) {
+		calculos.add(calculo);
+	}
+
+	public void removerCalculo(Calculo calculo) {
+		calculos.remove(calculo);
+	}
+
+	public List<Calculo> getCalculos() {
+		return Collections.unmodifiableList(calculos);
+	}
 	
 
 }

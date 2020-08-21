@@ -1,6 +1,7 @@
 package br.com.bancointer.desafio.interfaces.resource;
 
 import java.net.URI;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import br.com.bancointer.desafio.interfaces.dto.CalculoDto;
 import br.com.bancointer.desafio.interfaces.dto.UsuarioDto;
 import br.com.bancointer.desafio.interfaces.facade.UsuarioFacade;
 import br.com.bancointer.desafio.interfaces.http.HttpHelper;
@@ -34,6 +36,12 @@ public class UsuarioResource {
 	public ResponseEntity<UsuarioDto> buscarPorId(@PathVariable Long id) {
 		UsuarioDto usuario = usuarioFacade.buscarPorId(id);
 		return ResponseEntity.ok(usuario);
+	}
+	
+	@GetMapping("/{id}/calculos")
+	public ResponseEntity<List<CalculoDto>> calculos(@PathVariable Long id) {
+		List<CalculoDto> calculos = usuarioFacade.calculos(id);
+		return ResponseEntity.ok(calculos);
 	}
 
 	@DeleteMapping("/{id}")

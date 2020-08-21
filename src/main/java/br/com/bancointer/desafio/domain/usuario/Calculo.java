@@ -34,7 +34,7 @@ public class Calculo {
 	@Column(precision = 6, scale = 0)
 	@NonNull
 	@Getter @Setter
-	private Integer concatenacoes;
+	private Integer repeticoes;
 	
 	@Column(precision = 1, scale = 0)
 	@NonNull
