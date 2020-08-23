@@ -23,7 +23,7 @@ public class CalculoFacade {
 		String n = calculoDto.getNumero();
 		int k = calculoDto.getRepeticoes();
 		
-		int digito = calculadora.calcular(n, k);
+		int digito = calculadora.digitoUnico(n, k);
 		
 		Long id = calculoDto.getUsuario();
 		if (id != null) {

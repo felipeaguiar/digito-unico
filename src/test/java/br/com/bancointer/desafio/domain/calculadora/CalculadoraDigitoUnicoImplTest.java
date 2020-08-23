@@ -14,32 +14,32 @@ class CalculadoraDigitoUnicoImplTest {
 
 	@BeforeEach
 	void setUp() throws Exception {
-		calculadora = new CalculadoraDigitoUnicoImpl(null);
+		calculadora = new CalculadoraDigitoUnicoImpl();
 	}
 
 	@Test
 	void deveCalcularDigitoUnico() {
-		int digito = calculadora.calcular("9875", 1);
+		int digito = calculadora.digitoUnico("9875", 1);
 		assertEquals(2, digito);
 	}
 	
 	@Test
 	void deveCalcularDigitoUnicoComRepeticao() {
-		int digito = calculadora.calcular("9875", 4);
+		int digito = calculadora.digitoUnico("9875", 4);
 		assertEquals(8, digito);
 	}
 	
 	@Test
 	void deveCalcularODigitoUnicoComONumeroMaximoPermitido() {
 		String numero = simularNumero(1000000);
-		int digito = calculadora.calcular(numero, 1);
+		int digito = calculadora.digitoUnico(numero, 1);
 		assertEquals(1, digito);
 	}
 	
 	@Test
 	void deveCalcularODigitoUnicoComONumeroMaximoPermitidoComUmaRepeticao() {
 		String numero = simularNumero(1000000);
-		int digito = calculadora.calcular(numero, 2);
+		int digito = calculadora.digitoUnico(numero, 2);
 		assertEquals(2, digito);
 	}
 	
@@ -47,27 +47,27 @@ class CalculadoraDigitoUnicoImplTest {
 	void deveFalharAoUltrapassarONumeroMaximoPermitido() {
 		String numero = simularNumero(1000001);
 		assertThrows(NumeroNaoPermitidoException.class, () -> {
-			calculadora.calcular(numero, 1);
+			calculadora.digitoUnico(numero, 1);
 	    });
 	}
 	
 	@Test
 	void deveCalcularDigitoUnicoComValorMaximoDeRepeticoes() {
-		int digito = calculadora.calcular("9875", 100000);
+		int digito = calculadora.digitoUnico("9875", 100000);
 		assertEquals(2, digito);
 	}
 	
 	@Test
 	void deveFalharAoUltrapassarOLimiteMaximoDeRepeticoes() {
 		assertThrows(LimiteDeRepeticaoException.class, () -> {
-	        calculadora.calcular("9875", 100001);
+	        calculadora.digitoUnico("9875", 100001);
 	    });
 	}
 	
 	@Test
 	void deveFalharAoUltrapassarOLimiteMinimoDeRepeticoes() {
 		assertThrows(LimiteDeRepeticaoException.class, () -> {
-	        calculadora.calcular("9875", 0);
+	        calculadora.digitoUnico("9875", 0);
 	    });
 	}
 	

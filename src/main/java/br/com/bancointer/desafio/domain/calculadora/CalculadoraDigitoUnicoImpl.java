@@ -5,12 +5,12 @@ import br.com.bancointer.desafio.domain.calculadora.erros.LimiteDeRepeticaoExcep
 
 public class CalculadoraDigitoUnicoImpl extends CalculadoraDigitoUnico {
 
-	public CalculadoraDigitoUnicoImpl(CalculadoraDigitoUnico proximo) {
-		super(proximo);
+	public CalculadoraDigitoUnicoImpl() {
+		super(null);
 	}
 
 	@Override
-	protected int digitoUnico(String n, int k) {
+	public int digitoUnico(String n, int k) {
 		if (k > 100000 || k < 1) {
 			throw new LimiteDeRepeticaoException(); 
 		}

@@ -8,7 +8,7 @@ public class CalculadoraDigitoUnicoFactory {
 	
     @Bean
     public CalculadoraDigitoUnico processador() {
-        return new Cache(new CalculadoraDigitoUnicoImpl(null));
+        return new Cache(new CalculadoraDigitoUnicoImpl());
     }
 
 }
