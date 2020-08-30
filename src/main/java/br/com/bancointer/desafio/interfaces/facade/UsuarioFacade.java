@@ -7,18 +7,22 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import br.com.bancointer.desafio.application.UsuarioService;
+import br.com.bancointer.desafio.domain.criptografia.Criptografia;
 import br.com.bancointer.desafio.domain.usuario.Usuario;
 import br.com.bancointer.desafio.interfaces.dto.CalculoDto;
+import br.com.bancointer.desafio.interfaces.dto.ChaveDto;
 import br.com.bancointer.desafio.interfaces.dto.UsuarioDto;
 
 @Component
 public class UsuarioFacade {
 	
 	private UsuarioService usuarioService;
+	private Criptografia criptografia;
 	
 	@Autowired
-	public UsuarioFacade(UsuarioService usuarioService) {
+	public UsuarioFacade(UsuarioService usuarioService, Criptografia criptografia) {
 		this.usuarioService = usuarioService;
+		this.criptografia = criptografia;
 	}
 	
 	public UsuarioDto buscarPorId(Long id) {
@@ -49,8 +53,14 @@ public class UsuarioFacade {
 	private UsuarioDto toDto(Usuario usuario) {
 		UsuarioDto usuarioDTO = new UsuarioDto();
 		usuarioDTO.setId(usuario.getId());
-		usuarioDTO.setNome(usuario.getNome());
-		usuarioDTO.setEmail(usuario.getEmail());
+
+		if (usuario.getChavePublica() != null) {			
+			String nome = criptografia.encrypt(usuario.getNome(), usuario.getChavePublica());
+			String email = criptografia.encrypt(usuario.getEmail(), usuario.getChavePublica());
+			usuarioDTO.setNome(nome);
+			usuarioDTO.setEmail(email);
+		}
+		
 		return usuarioDTO;
 	}
 	
@@ -70,6 +80,10 @@ public class UsuarioFacade {
 				return calculoDto;
 			})
 			.collect(Collectors.toList());
+	}
+
+	public void atualizarChavePublica(Long id, ChaveDto chaveDto) {
+		usuarioService.adicionarChave(id, chaveDto.getChave());
 	}
 
 }

@@ -33,6 +33,12 @@
 					"script": {
 						"id": "b6a3e6f9-1140-4859-83db-ea9259c80c5a",
 						"exec": [
+							"pm.sendRequest('https://joolfe.github.io/postman-util-lib/dist/bundle.js', (error, ressponse) => {",
+							"    if (!error) {",
+							"        pm.globals.set('pmlib_code', ressponse.text());",
+							"    }",
+							"})",
+							"",
 							"const email = pm.variables.replaceIn('{{$randomEmail}}');",
 							"const nome = pm.variables.replaceIn('{{$randomFullName}}');",
 							"",
@@ -90,8 +96,6 @@
 							"    pm.globals.set('id', jsonData.id);",
 							"",
 							"    pm.expect(jsonData.id).to.be.an('number');",
-							"    pm.expect(jsonData.nome).to.be.eql(nome);",
-							"    pm.expect(jsonData.email).to.be.eql(email);",
 							"});",
 							"",
 							"pm.test(\"deve validar se o header Location está presente\", function () {",
@@ -204,27 +208,106 @@
 			"response": []
 		},
 		{
-			"name": "deve adicionar localizar usuário cadastrado",
+			"name": "deve enviar a chave pública do usuário",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "4894c658-83fc-4202-a96d-a1e7a5fb806d",
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"id": "6da12c99-c5ac-44ec-86f9-fdb0ecd879a7",
+						"exec": [
+							"pm.test(\"deve receber status code 200\", () => {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"chave\": \"MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA2wSceL/XjYodub5w9t3M9351ktNBubFdSc5s9Qc8S0dmz5P7ibr811SOEa/+YLQTOm4jUrdu9hrUJZPiOo4kV8/IJr9RkLaBCHiYym3EMzgCEIlAAFfdXEnJno1Kp8pDiJBIDbcHe9ISACPB/s27zXN+qVXNup90eGjuYQ3kcuchoO76Wq/kLbvSMrKneiO5otzMZEXlxtpP3sAk3uvJvOmjogejyn0dfV+mkXZDhRCD/KCKxqzipYgyBN0RcKNhWEHhXsMs+rxFTzQoLFUGWhxgN0ixG2MxSEKZOZHQUcyJ5C3gmeQJlHvtzZ5yjepKkK4Qzt/9aEuizeJBFWtTZwIDAQAB\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/usuario/{{id}}/chave-publica",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"usuario",
+						"{{id}}",
+						"chave-publica"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "deve descriptografar nome e e-mail do usuário usando chave privada",
 			"event": [
 				{
 					"listen": "test",
 					"script": {
 						"id": "8450a096-9724-4f61-b466-890b50f54781",
 						"exec": [
+							"eval(pm.globals.get('pmlib_code'));",
+							"",
+							"const privateKey = pm.globals.get('private_key');",
 							"const email = pm.globals.get('email');",
 							"const nome = pm.globals.get('nome');",
 							"",
 							"pm.test(\"deve receber status code 200\", () => {",
-							"    pm.response.to.have.status(200);",
+							"  pm.response.to.have.status(200);",
 							"});",
 							"",
 							"pm.test(\"deve validar resposta\", () => {",
-							"    const jsonData = pm.response.json();",
+							"  const jsonData = pm.response.json();",
+							"  const decryptedName = decrypt(jsonData.nome);",
+							"  const decryptedEmail = decrypt(jsonData.email);",
 							"",
-							"    pm.expect(jsonData.id).to.be.an('number');",
-							"    pm.expect(jsonData.nome).to.eql(nome);",
-							"    pm.expect(jsonData.email).to.eql(email);",
-							"});"
+							"  pm.expect(jsonData.id).to.be.an('number');",
+							"  pm.expect(decryptedName).to.eql(nome);",
+							"  pm.expect(decryptedEmail).to.eql(email);",
+							"});",
+							"",
+							"function decrypt(value) {",
+							"  decoded = decode(value);",
+							"  keyObject = pmlib.rs.KEYUTIL.getKey(privateKey);",
+							"  return result = pmlib.rs.KJUR.crypto.Cipher.decrypt(decoded, keyObject, 'RSAOAEP');",
+							"}",
+							"",
+							"function decode(value) {",
+							"  const raw = atob(value);",
+							"  let result = '';",
+							"",
+							"  for (let i = 0; i < raw.length; i++) {",
+							"    const hex = raw.charCodeAt(i).toString(16);",
+							"    result += (hex.length === 2 ? hex : '0' + hex);",
+							"  }",
+							"",
+							"  return result.toUpperCase();",
+							"}",
+							""
 						],
 						"type": "text/javascript"
 					}
@@ -234,6 +317,37 @@
 					"script": {
 						"id": "5be4306e-1923-4a42-87b1-320ef4b0e196",
 						"exec": [
+							"const PRIVATE_KEY =",
+							"`-----BEGIN PRIVATE KEY-----",
+							"MIIEvwIBADANBgkqhkiG9w0BAQEFAASCBKkwggSlAgEAAoIBAQDbBJx4v9eNih25",
+							"vnD23cz3fnWS00G5sV1Jzmz1BzxLR2bPk/uJuvzXVI4Rr/5gtBM6biNSt272GtQl",
+							"k+I6jiRXz8gmv1GQtoEIeJjKbcQzOAIQiUAAV91cScmejUqnykOIkEgNtwd70hIA",
+							"I8H+zbvNc36pVc26n3R4aO5hDeRy5yGg7vpar+Qtu9Iysqd6I7mi3MxkReXG2k/e",
+							"wCTe68m86aOiB6PKfR19X6aRdkOFEIP8oIrGrOKliDIE3RFwo2FYQeFewyz6vEVP",
+							"NCgsVQZaHGA3SLEbYzFIQpk5kdBRzInkLeCZ5AmUe+3NnnKN6kqQrhDO3/1oS6LN",
+							"4kEVa1NnAgMBAAECggEBAKU0EzrZqiPvXICw79CmeWbuEo2PoHILIUz80h75ODeo",
+							"QhqtivzW+MUL2KXq1Lvo2OAoF6jbCG3GyuMVa32zniJGbrkbctDveOEE5ms65NWl",
+							"l5kVjhs0K5rjZZudBAUQgmROQKtntdNmH4HPdxNV6CUOyym7uRTeFiKFM9otenZY",
+							"D1hfKYHoYgQpAYLlbq2/JwmuL0UVyVGxkHmQw/W4MlbpdFTlNPnBdV/XXZv9wA+R",
+							"uYqhZ0Ds1Hy0rBT9jfRCUsq19HYfhQh8FOwNlzDrhyB0N+7Xp0gT0D20rd5IHhCs",
+							"LoFSgdFTKmBQYYECdsEabfwdJA7DZS56gL7//cA8wqECgYEA/mIPYzLwIqRnPVSO",
+							"PbzmhJ1wzXVsyzYZ/pvE2VtU4+/Vh4kgj+5gPax6AJYniZTYgxYRSbYKHeEqLVUI",
+							"6vkHwR3xJI8t8Sau8CwyoRe5zoXxs919NaswzyhI5ikIAsoxyMGpIRtSqNgdiiuC",
+							"VaW6fwEQPODJkxqRk96NiOYoZJ8CgYEA3GkBCNymNH/BSFFfPpBp75zr2eDpf0gv",
+							"DmOxmGSxZst5aFMk0VnY9LscqJWs2kmc/cKyqoqc1kNKDkosm0mcJg8J+IUdTRqs",
+							"H18giomD4goxhxnCFmedhv/KaRaTnqYTAZx67w5FAU6Oqk3Kqi6ZduiPBsY0Y6+d",
+							"X28YFZMflDkCgYAxRp+CcMCRhVU2TSXMkcX5lGHgesmbR5ybdGMaU5XLHY84VPjI",
+							"yL091SZA7NU10m5qXiD1LV0iUpaP93PlyF2XLAylL1MP7pVeksEv8V+dwNaEJ/h0",
+							"J/gpeL0+UF5r4+zm3ZS8hAVsDYkTVcBGhPbuWS9jC4wggboHccnq5eKXMwKBgQCg",
+							"GVW7DitcLwBCe3jnhRauChn3JTv2TISBu0ChJWMG+/2wHdS8jLre6ZsjibUIyjfS",
+							"y73jytOpfy8nuhE0qv9VVc80SdzCyQEFuJ92gfTeF/Fp5PfqNlFiYiKwusl3j8J2",
+							"hSd2xbKyBFH0upTfkQHAMaTSkt4zGrkBPT0NTtS9YQKBgQCIHYZI7JX51Fn9WuqG",
+							"w5CKTfadI/cG3uaqRnbQN/ophNifF5M2ikhuwPAbEoc1ar4RbKSd5a/68frXtdDt",
+							"0Rli08SIrBnaVirN2njHo/LuMv+xgBGR6BgLTH5yU+8r4VFMBfIRk/Fj62OtGEGE",
+							"qduD7lD+dPWJrtcMD9KmxlH1sQ==",
+							"-----END PRIVATE KEY-----`;",
+							"",
+							"pm.globals.set('private_key', PRIVATE_KEY);",
 							""
 						],
 						"type": "text/javascript"
@@ -291,8 +405,6 @@
 							"    const jsonData = pm.response.json();",
 							"",
 							"    pm.expect(jsonData.id).to.be.an('number');",
-							"    pm.expect(jsonData.nome).to.eql(nome);",
-							"    pm.expect(jsonData.email).to.eql(email);",
 							"});",
 							""
 						],
@@ -335,11 +447,7 @@
 					"script": {
 						"id": "ee4ecfe5-ecc5-4825-a709-440fe26f5e92",
 						"exec": [
-							"const email = pm.variables.replaceIn('{{$randomEmail}}');",
-							"const nome = pm.variables.replaceIn('{{$randomFullName}}');",
-							"",
-							"pm.globals.set('email', email);",
-							"pm.globals.set('nome', nome);"
+							""
 						],
 						"type": "text/javascript"
 					}
@@ -349,19 +457,15 @@
 					"script": {
 						"id": "4b133ff1-e5dc-4f8e-900f-20f447a5eaf8",
 						"exec": [
-							"const email = pm.globals.get('email');",
-							"const nome = pm.globals.get('nome');",
-							"",
-							"pm.test(\"deve receber status code 200\", () => {",
-							"    pm.response.to.have.status(200);",
+							"pm.test(\"deve receber status code 400\", () => {",
+							"    pm.response.to.have.status(400);",
 							"});",
 							"",
 							"pm.test(\"deve validar resposta\", () => {",
 							"    const jsonData = pm.response.json();",
 							"",
-							"    pm.expect(jsonData.id).to.be.an('number');",
-							"    pm.expect(jsonData.nome).to.eql(nome);",
-							"    pm.expect(jsonData.email).to.eql(email);",
+							"    pm.expect(jsonData.status).to.be.eql(400);",
+							"    pm.expect(jsonData.messages.length).to.be.eql(2);",
 							"});",
 							""
 						],
@@ -374,7 +478,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"nome\": \"{{nome}}\",\n    \"email\": \"{{email}}\"\n}",
+					"raw": "{\n    \"nome\": \"Fe\",\n    \"email\": \"felipe.mail\"\n}",
 					"options": {
 						"raw": {
 							"language": "json"

@@ -44,7 +44,7 @@ public class Usuario {
 	@Getter @Setter
 	private String email;
 	
-	@Column(length = 1024)
+	@Column(length = 512)
 	@Getter @Setter
 	private String chavePublica;
 	

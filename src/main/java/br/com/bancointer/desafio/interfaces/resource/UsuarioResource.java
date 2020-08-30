@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import br.com.bancointer.desafio.interfaces.dto.CalculoDto;
+import br.com.bancointer.desafio.interfaces.dto.ChaveDto;
 import br.com.bancointer.desafio.interfaces.dto.UsuarioDto;
 import br.com.bancointer.desafio.interfaces.facade.UsuarioFacade;
 import br.com.bancointer.desafio.interfaces.http.HttpHelper;
@@ -61,6 +62,12 @@ public class UsuarioResource {
 	public ResponseEntity<UsuarioDto> atualizar(@PathVariable Long id, @Validated @RequestBody UsuarioDto usuarioDTO) {
 		UsuarioDto usuarioSalvo = usuarioFacade.atuarizar(id, usuarioDTO);
 		return ResponseEntity.ok(usuarioSalvo);
+	}
+	
+	@PutMapping("/{id}/chave-publica")
+	@ResponseStatus(HttpStatus.OK)
+	public void chavePublica(@PathVariable Long id, @Validated @RequestBody ChaveDto chaveDto) {
+		usuarioFacade.atualizarChavePublica(id, chaveDto);
 	}
 	
 }

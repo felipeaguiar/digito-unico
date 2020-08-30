@@ -43,6 +43,12 @@ public class UsuarioService {
 		BeanUtils.copyProperties(usuario, usuarioSalvo, "id");
 		return usuarioRepository.save(usuarioSalvo);
 	}
+	
+	public void adicionarChave(Long id, String chave) {
+		Usuario usuario = buscarPorId(id);
+		usuario.setChavePublica(chave);
+		usuarioRepository.save(usuario);
+	}
 
 	public void adicionarCalculo(Long id, String n, int k, int digito) {
 		Optional<Usuario> optional = usuarioRepository.findById(id);
