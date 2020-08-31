@@ -1,0 +1,246 @@
+swagger: '2.0'
+
+info:
+  version: '0.0.1'
+  title: 'Dígito Único'
+  contact:
+    email: 'feliperdaguiar@gmail.com'
+schemes:
+- 'https'
+
+paths:
+  '/usuario':
+    post:
+      tags:
+      - 'Usuário'
+      summary: 'Cadastrar um novo usuário'
+      operationId: 'addUsuario'
+      consumes:
+      - 'application/json'
+      produces:
+      - 'application/json'
+      parameters:
+      - name: 'usuario'
+        in: 'body'
+        required: true
+        schema:
+          $ref: '#/definitions/Usuario'
+      responses:
+        '201':
+          description: 'Usuário cadastrado com sucesso'
+          headers:
+            Location:
+              type: 'string'
+              description: 'Caminho do usuário cadastrado'
+          examples:
+            application/json:
+              id: 1
+  '/usuario/{id}/chave-publica':
+    put:
+      tags:
+      - 'Usuário'
+      summary: 'Enviar chave pública'
+      operationId: 'pubkey'
+      consumes:
+      - 'application/json'
+      produces:
+      - 'application/json'
+      parameters:
+      - name: 'usuario'
+        in: 'body'
+        required: true
+        schema:
+          $ref: '#/definitions/ChavePublica'
+      - name: 'id'
+        in: 'path'
+        required: true
+        type: 'string'
+      responses:
+        '200':
+          description: 'Ok'
+        '404':
+          description: 'Not Found'
+  '/usuario/{id}':
+    get:
+      tags:
+      - 'Usuário'
+      summary: 'Obter dados criptografados do usuário'
+      operationId: 'getUsuario'
+      consumes:
+      - 'application/json'
+      produces:
+      - 'application/json'
+      parameters:
+      - name: 'id'
+        in: 'path'
+        required: true
+        type: 'string'
+      responses:
+        '200':
+          description: 'Ok'
+          schema:
+            $ref: '#/definitions/Usuario'
+          examples:
+            application/json:
+              id: 1
+              nome: 'y0iKswzt9jJALuWz0n8k...'
+              email: 'DlC8wirLJGjMM96StCCQ...'
+        '404':
+          description: 'Not Found'
+    put:
+      tags:
+      - 'Usuário'
+      summary: 'Editar Usuário'
+      operationId: 'updateUsuario'
+      consumes:
+      - 'application/json'
+      produces:
+      - 'application/json'
+      parameters:
+      - name: 'usuario'
+        in: 'body'
+        required: true
+        schema:
+          $ref: '#/definitions/Usuario'
+      - name: 'id'
+        in: 'path'
+        required: true
+        type: 'string'
+      responses:
+        '200':
+          description: 'Ok'
+          examples:
+            application/json:
+              id: 1
+        '404':
+          description: 'Not Found'
+    delete:
+      tags:
+      - 'Usuário'
+      summary: 'Remover usuário cadastrado'
+      operationId: 'removeUsuario'
+      consumes:
+      - 'application/json'
+      produces:
+      - 'application/json'
+      parameters:
+      - name: 'id'
+        in: 'path'
+        required: true
+        type: 'string'
+      responses:
+        '204':
+          description: 'No Content'
+        '404':
+          description: 'Not Found'
+  '/usuario/{id}/calculos':
+    get:
+      tags:
+      - 'Usuário'
+      summary: 'Obter cálculos vinculados ao usuário'
+      operationId: 'getCalc'
+      consumes:
+      - 'application/json'
+      produces:
+      - 'application/json'
+      parameters:
+      - name: 'id'
+        in: 'path'
+        required: true
+        type: 'string'
+      responses:
+        '200':
+          description: 'Ok'
+          schema:
+            type: 'array'
+            items:
+              $ref: '#/definitions/Calculo'
+            example:
+            - numero: '9875'
+              repeticoes: 1
+              resultado: 2
+            - numero: '9875'
+              repeticoes: 4
+              resultado: 8
+        '404':
+          description: 'Not Found'
+  '/calculo':
+    post:
+      tags:
+      - 'Cálculo'
+      summary: 'Calcular dígito único'
+      operationId: 'calc'
+      consumes:
+      - 'application/json'
+      produces:
+      - 'application/json'
+      parameters:
+      - name: 'usuario'
+        in: 'body'
+        required: true
+        schema:
+          $ref: '#/definitions/Calculo'
+      responses:
+        '200':
+          description: 'Ok'
+          schema:
+            $ref: '#/definitions/Calculo'
+          examples:
+            application/json:
+              numero: '9875'
+              repeticoes: 4
+              resultado: 8
+
+definitions:
+  Usuario:
+    title: 'Usuário'
+    type: 'object'
+    example:
+      nome: 'Felipe Aguiar'
+      email: 'feliperdaguiar@gmail.com'
+    properties:
+      id:
+        type: 'integer'
+      nome:
+        type: 'string'
+      email:
+        type: 'string'
+    required:
+    - 'nome'
+    - 'email'
+  ChavePublica:
+    title: 'Chave Pública'
+    type: 'object'
+    example:
+      chave: 'MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8...'
+    properties:
+      chave:
+        type: 'string'
+    required:
+    - 'chave'
+  Calculo:
+    title: 'Cálculo'
+    type: 'object'
+    example:
+      numero: '9875'
+      repeticoes: 1
+      usuario: 1
+    properties:
+      numero:
+        type: 'string'
+      repeticoes:
+        type: 'string'
+      usuario:
+        type: 'integer'
+        description: 'Se o id do usuário não for informado o calculo não será vinculádo ao usuario'
+      resultado:
+        type: 'integer'
+    required:
+    - 'numero'
+    - 'repeticoes'    
+
+tags:
+- name: 'Usuário'
+  description: 'CRUD de Usuário'
+- name: 'Cálculo'
+

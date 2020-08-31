@@ -32,7 +32,7 @@ public class AppExceptionHandler {
 		HttpStatus status = HttpStatus.BAD_REQUEST;
 		String message = messageSource.getMessage("mensagem.invalida", null, locale);
 
-		ApiResponse error = ApiResponse.of(status.value(), new ApiMessage("json_parse", message));
+		ApiResponse error = ApiResponse.of(status.value(), new ApiMessage("json-parse", message));
 		return ResponseEntity.badRequest().body(error);
 	}
 	
@@ -72,8 +72,6 @@ public class AppExceptionHandler {
 	
 	@ExceptionHandler(UsuarioDuplicadoException.class)
 	public ResponseEntity<ApiResponse> handlerUsuarioDuplicadoError(UsuarioDuplicadoException e, Locale locale) {
-		log.error("Error not expected", e);
-
 		HttpStatus status = HttpStatus.BAD_REQUEST;
 		String message = messageSource.getMessage("usuario.duplicado", null, locale);
 
